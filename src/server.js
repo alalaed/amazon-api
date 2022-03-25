@@ -8,6 +8,7 @@ import {
   genericErrorHandler,
 } from "./errorHandlers.js";
 import productsRouter from "./services/products/index.js";
+import reviewsRouter from "./services/reviews/index.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -15,7 +16,7 @@ const port = process.env.PORT || 3001;
 server.use(cors());
 server.use(express.json());
 
-server.use("/products", productsRouter);
+server.use("/products", [productsRouter, reviewsRouter]);
 
 server.use(badRequestHandler);
 server.use(notFoundHandler);
