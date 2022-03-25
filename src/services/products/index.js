@@ -39,6 +39,14 @@ productsRouter.get("/", async (req, res, next) => {
 
 productsRouter.get("/:productId", async (req, res, next) => {
   try {
+    const product = await productModel.findById(req.params.productId);
+    if (product) {
+      res.send(product);
+    } else
+      next(
+        createError(404),
+        `Product with the ID ${req.params.productId} is not found.`
+      );
   } catch (error) {
     next(error);
   }
@@ -46,6 +54,17 @@ productsRouter.get("/:productId", async (req, res, next) => {
 
 productsRouter.put("/:productId", async (req, res, next) => {
   try {
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      req.params.productId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (updatedProduct) res.send(updatedProduct);
+    else
+      next(
+        createError(404),
+        `Product with the ID ${req.params.productId} is not found.`
+      );
   } catch (error) {
     next(error);
   }
@@ -53,6 +72,15 @@ productsRouter.put("/:productId", async (req, res, next) => {
 
 productsRouter.delete("/productId", async (req, res, next) => {
   try {
+    const deletedProduct = await productModel.findByIdAndDelete(
+      req.params.productId
+    );
+    if (deletedProduct) res.status(204).send();
+    else
+      next(
+        createError(404),
+        `Product with the ID ${req.params.productId} is not found.`
+      );
   } catch (error) {
     next(error);
   }
