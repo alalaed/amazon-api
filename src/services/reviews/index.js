@@ -1,19 +1,22 @@
 import express from "express";
 import createError from "http-errors";
+import reviewModel from "../reviews/models.js";
 import productModel from "../products/models.js";
 
 const reviewsRouter = express.Router();
 
 reviewsRouter.post("/:productId/reviews", async (req, res, next) => {
   try {
-    const product = await productModel.findById(req.params.productId);
+    const product = await productModel.findById(req.params.productId, {
+      _id: 0,
+    });
     if (product) {
       const review = req.body;
       const newReview = {
         ...review,
         reviewDate: new Date(),
       };
-      const modifiedProduct = await productModel.findByIdAndDelete(
+      const modifiedProduct = await productModel.findByIdAndUpdate(
         req.params.productId,
         { $push: { reviews: newReview } },
         { new: true }
@@ -47,7 +50,10 @@ reviewsRouter.get("/:productId/reviews", async (req, res, next) => {
     if (product) res.send(product.reviews);
     else {
       next(
-        createError(404, `Product with id ${req.body.bookId} has no reviews!`)
+        createError(
+          404,
+          `Product with id ${req.body.productId} has no reviews!`
+        )
       );
     }
   } catch (error) {
@@ -60,7 +66,7 @@ reviewsRouter.get("/:productId/reviews/:reviewId", async (req, res, next) => {
   try {
     const product = await productModel.findById(req.params.productId);
     if (product) {
-      const oneReview = review.reviews.find(
+      const oneReview = product.reviews.find(
         (review) => review._id.toString() === req.params.reviewId
       );
       if (oneReview) {
@@ -83,7 +89,7 @@ reviewsRouter.get("/:productId/reviews/:reviewId", async (req, res, next) => {
 
 reviewsRouter.put("/:productId/reviews/:reviewId", async (req, res, next) => {
   try {
-    const product = await productModel.findById(req.params.productId);
+    const product = await reviewModel.findById(req.params.productId);
     if (product) {
       const index = product.reviews.findIndex(
         (review) => review._id.toString() === req.params.reviewId
@@ -113,7 +119,7 @@ reviewsRouter.put("/:productId/reviews/:reviewId", async (req, res, next) => {
 
 reviewsRouter.delete("/:productId/reviews", async (req, res, next) => {
   try {
-    const product = await productModel.findByIdAndUpdate(
+    const product = await reviewModel.findByIdAndUpdate(
       req.params.productId,
       { $pull: { comments: { _id: req.params.commentId } } },
       { new: true }
@@ -121,7 +127,9 @@ reviewsRouter.delete("/:productId/reviews", async (req, res, next) => {
     if (product) {
       res.send(product);
     } else {
-      next(createError(404, `Product with id ${req.body.bookId} is not found`));
+      next(
+        createError(404, `Product with id ${req.body.productId} is not found`)
+      );
     }
   } catch (error) {
     next(error);
