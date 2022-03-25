@@ -24,8 +24,8 @@ productsRouter.get("/", async (req, res, next) => {
       .find(mongoQuery.criteria, mongoQuery.options.fields)
       .sort(mongoQuery.options.sort) //Mongo will ALWAYS do SORT, SKIP, LIMIT no matter what!
       .skip(mongoQuery.options.skip, 0)
-      .limit(mongoQuery.options.limit, 20)
-      .populate({ path: "author" });
+      .limit(mongoQuery.options.limit, 20);
+
     res.send({
       links: mongoQuery.links(`http://localhost:3001/blogs`, total),
       total,
